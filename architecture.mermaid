@@ -1,0 +1,105 @@
+classDiagram
+    class EventEmitter {
+        +on(event: string, handler: Function)
+        +off(event: string, handler: Function)
+        +emit(event: string, data: object)
+        +onAll(handler: Function)
+        +offAll()
+    }
+
+    class Component {
+        +toggleClass(element: HTMLElement, className: string)
+        +setText(element: HTMLElement, text: string)
+        +setDisabled(element: HTMLElement, state: boolean)
+    }
+
+    class Model {
+        +emitChanges(event: string, payload: object)
+    }
+
+    class APIClient {
+        +getProducts()
+        +getProduct(id: string)
+        +createOrder(order: IOrderAPI)
+    }
+
+    class Product {
+        +id: string
+        +title: string
+        +description: string
+        +image: string
+        +category: string
+        +price: number
+    }
+
+    class Cart {
+        +items: Map~string, Product~
+        +total: number
+        +add(item: Product)
+        +remove(id: string)
+        +clear()
+        +updateTotal()
+    }
+
+    class Order {
+        +payment: string
+        +email: string
+        +phone: string
+        +address: string
+        +total: number
+        +items: string[]
+        +formErrors: IFormErrors
+        +validateOrder()
+        +validateDelivery()
+        +validateContacts()
+    }
+
+    class ProductListView {
+        +render(products: Product[])
+    }
+
+    class ProductView {
+        +render(product: Product)
+        +open()
+        +close()
+    }
+
+    class CartView {
+        +render(items: Map)
+        +updateTotal(total: number)
+        +open()
+        +close()
+    }
+
+    class OrderView {
+        +render(order: Order)
+        +showSuccess()
+        +showError(message: string)
+    }
+
+    class DeliveryForm {
+        +payment: string
+        +address: string
+        +validate()
+    }
+
+    class ContactsForm {
+        +email: string
+        +phone: string
+        +validate()
+    }
+
+    Model --|> EventEmitter
+    Component --|> EventEmitter
+    ProductListView --|> Component
+    ProductView --|> Component
+    CartView --|> Component
+    OrderView --|> Component
+    DeliveryForm --|> Component
+    ContactsForm --|> Component
+
+    ProductListView --> ProductView
+    CartView --> Cart
+    OrderView --> Order
+    DeliveryForm --> Order
+    ContactsForm --> Order
