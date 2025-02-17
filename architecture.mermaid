@@ -11,34 +11,33 @@ classDiagram
         +toggleClass(element: HTMLElement, className: string)
         +setText(element: HTMLElement, text: string)
         +setDisabled(element: HTMLElement, state: boolean)
+        +render(data: T)
     }
 
     class Model {
+        +props: T
         +emitChanges(event: string, payload: object)
     }
 
-    class APIClient {
-        +getProducts()
-        +getProduct(id: string)
-        +createOrder(order: IOrderAPI)
+    class Modal {
+        +content: HTMLElement
+        +open()
+        +close()
     }
 
-    class Product {
-        +id: string
-        +title: string
-        +description: string
-        +image: string
-        +category: string
-        +price: number
+    class AppState {
+        +products: IProduct[]
+        +currentProduct: IProduct
+        +updateProducts()
+        +setCurrentProduct()
     }
 
     class Cart {
-        +items: Map~string, Product~
-        +total: number
-        +add(item: Product)
+        +items: Map~string, IProduct~
+        +add(item: IProduct)
         +remove(id: string)
         +clear()
-        +updateTotal()
+        +getTotal()
     }
 
     class Order {
@@ -46,7 +45,6 @@ classDiagram
         +email: string
         +phone: string
         +address: string
-        +total: number
         +items: string[]
         +formErrors: IFormErrors
         +validateOrder()
@@ -55,20 +53,16 @@ classDiagram
     }
 
     class ProductListView {
-        +render(products: Product[])
+        +render(products: IProduct[])
     }
 
     class ProductView {
-        +render(product: Product)
-        +open()
-        +close()
+        +render(product: IProduct)
     }
 
     class CartView {
         +render(items: Map)
         +updateTotal(total: number)
-        +open()
-        +close()
     }
 
     class OrderView {
@@ -78,25 +72,25 @@ classDiagram
     }
 
     class DeliveryForm {
-        +payment: string
-        +address: string
-        +validate()
+        +render(data: TDeliveryForm)
     }
 
     class ContactsForm {
-        +email: string
-        +phone: string
-        +validate()
+        +render(data: TContactsForm)
     }
 
     Model --|> EventEmitter
     Component --|> EventEmitter
+    Modal --|> Component
     ProductListView --|> Component
     ProductView --|> Component
     CartView --|> Component
     OrderView --|> Component
     DeliveryForm --|> Component
     ContactsForm --|> Component
+    AppState --|> Model
+    Cart --|> Model
+    Order --|> Model
 
     ProductListView --> ProductView
     CartView --> Cart
