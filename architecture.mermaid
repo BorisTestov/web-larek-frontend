@@ -5,31 +5,56 @@ classDiagram
         +emit(event: string, data: object)
         +onAll(handler: Function)
         +offAll()
+        +trigger(event: string, context?: object)
     }
 
     class Component {
-        +toggleClass(element: HTMLElement, className: string)
+        +container: HTMLElement
+        +toggleClass(element: HTMLElement, className: string, force?: boolean)
         +setText(element: HTMLElement, text: string)
+        +setHTML(element: HTMLElement, html: string)
         +setDisabled(element: HTMLElement, state: boolean)
-        +render(data: T)
+        +hide()
+        +show()
+        +setStatus(status: string)
+        +render(data: unknown)
+    }
+
+    class Presenter {
+        #model: T
+        #view: U
+        +events: EventEmitter
+        #bindEvents()
     }
 
     class Model {
+        #_props: T
+        +get(key: string): any
+        +set(key: string, value: any)
+        +update(data: object)
+        +emitChanges(key: string, value: any)
         +props: T
-        +emitChanges(event: string, payload: object)
     }
 
     class Modal {
         +content: HTMLElement
         +open()
         +close()
+        +render(data: HTMLElement)
+    }
+
+    class ApiClient {
+        +getProducts(): Promise<IProductsResponse>
+        +getProduct(id: string): Promise<IProduct>
+        +createOrder(order: IOrder): Promise<IOrderResult>
     }
 
     class AppState {
         +products: IProduct[]
         +currentProduct: IProduct
-        +updateProducts()
-        +setCurrentProduct()
+        +loadProducts(): Promise<void>
+        +setCurrentProduct(product: IProduct)
+        +loadProductById(id: string): Promise<void>
     }
 
     class Cart {
@@ -37,7 +62,11 @@ classDiagram
         +add(item: IProduct)
         +remove(id: string)
         +clear()
-        +getTotal()
+        +getTotal(): number
+        +getItemsCount(): number
+        +getItemIds(): string[]
+        +getItem(id: string): IProduct
+        +hasItem(id: string): boolean
     }
 
     class Order {
@@ -47,36 +76,138 @@ classDiagram
         +address: string
         +items: string[]
         +formErrors: IFormErrors
-        +validateOrder()
-        +validateDelivery()
-        +validateContacts()
+        +setPayment(value: string)
+        +setAddress(value: string)
+        +setEmail(value: string)
+        +setPhone(value: string)
+        +setItems(items: string[])
+        +setTotal(total: number)
+        +validateDelivery(): boolean
+        +validateContacts(): boolean
+        +validateOrder(): boolean
+        +getDeliveryForm(): TDeliveryForm
+        +getContactsForm(): TContactsForm
     }
 
     class ProductListView {
+        -_template: HTMLTemplateElement
         +render(products: IProduct[])
+        -createCard(product: IProduct): HTMLElement
+        -setCategoryClass(element: HTMLElement, category: string)
     }
 
     class ProductView {
-        +render(product: IProduct)
+        +render(product: IProduct, inCart: boolean)
+        +setButtonState(inCart: boolean)
+        -setCategoryClass(category: string)
+        -handleButtonClick()
     }
 
     class CartView {
-        +render(items: Map)
+        -_list: HTMLElement
+        -_total: HTMLElement
+        -_button: HTMLButtonElement
+        -_template: HTMLTemplateElement
+        +render(items: Map~string, IProduct~)
         +updateTotal(total: number)
+        -calculateTotal(items: IProduct[]): number
+        -createCartItem(item: IProduct, index: number): HTMLElement
+        -handleClick()
+    }
+
+    class BasketCounter {
+        -_counter: HTMLElement
+        +render(count: number)
+        -handleClick()
     }
 
     class OrderView {
-        +render(order: Order)
-        +showSuccess()
+        -_deliveryTemplate: HTMLTemplateElement
+        -_contactsTemplate: HTMLTemplateElement
+        -_successTemplate: HTMLTemplateElement
+        +render(order: IOrder)
+        +showDeliveryForm(): HTMLFormElement
+        +showContactsForm(): HTMLFormElement
+        +showSuccess(): HTMLElement
         +showError(message: string)
+        -clear()
     }
 
     class DeliveryForm {
+        -_cardButton: HTMLButtonElement
+        -_cashButton: HTMLButtonElement
+        -_addressInput: HTMLInputElement
+        -_submitButton: HTMLButtonElement
+        -_errors: HTMLElement
+        -_paymentSelected: boolean
+        -_addressFilled: boolean
         +render(data: TDeliveryForm)
+        +setValid(isValid: boolean, errors: IFormErrors)
+        +showErrors(errors: IFormErrors)
+        +reset()
+        -setPaymentMethod(method: string)
+        -handleAddressInput()
+        -handleSubmit(event: Event)
+        -checkFormValidity()
     }
 
     class ContactsForm {
+        -_emailInput: HTMLInputElement
+        -_phoneInput: HTMLInputElement
+        -_submitButton: HTMLButtonElement
+        -_errors: HTMLElement
+        -_emailValid: boolean
+        -_phoneValid: boolean
         +render(data: TContactsForm)
+        +setValid(isValid: boolean, errors: IFormErrors)
+        +showErrors(errors: IFormErrors)
+        +reset()
+        -handleEmailInput()
+        -handlePhoneInput()
+        -updateButtonState()
+        -handleSubmit(event: Event)
+    }
+
+    class SuccessView {
+        -_title: HTMLElement
+        -_description: HTMLElement
+        -_closeButton: HTMLButtonElement
+        +render(total: number)
+        -handleClick()
+    }
+
+    class AppPresenter {
+        -_productView: ProductView
+        -_modal: Modal
+        -_cart: Cart
+        -_basketCounter: BasketCounter
+        +init(): Promise<void>
+        #bindEvents()
+        -openProductModal(product: IProduct)
+    }
+
+    class CartPresenter {
+        -_modal: Modal
+        -_basketCounter: BasketCounter
+        -_orderPresenter: OrderPresenter
+        +setOrderPresenter(orderPresenter: OrderPresenter)
+        +openCartModal()
+        #bindEvents()
+        -updateView()
+    }
+
+    class OrderPresenter {
+        -_modal: Modal
+        -_deliveryForm: DeliveryForm
+        -_contactsForm: ContactsForm
+        -_successView: SuccessView
+        -_api: ApiClient
+        +setOrderItems(items: string[], total: number)
+        +openDeliveryForm()
+        +openContactsForm()
+        +submitOrder(): Promise<void>
+        #bindEvents()
+        -handleFormValidation(errors: IFormErrors)
     }
 
     Model --|> EventEmitter
@@ -88,12 +219,35 @@ classDiagram
     OrderView --|> Component
     DeliveryForm --|> Component
     ContactsForm --|> Component
+    BasketCounter --|> Component
+    SuccessView --|> Component
     AppState --|> Model
     Cart --|> Model
     Order --|> Model
+    ApiClient --|> Api
 
-    ProductListView --> ProductView
-    CartView --> Cart
-    OrderView --> Order
-    DeliveryForm --> Order
-    ContactsForm --> Order
+    Presenter --> EventEmitter
+    AppPresenter --|> Presenter
+    CartPresenter --|> Presenter
+    OrderPresenter --|> Presenter
+
+    AppPresenter --> AppState
+    AppPresenter --> ProductListView
+    AppPresenter --> ProductView
+    AppPresenter --> Modal
+    AppPresenter --> Cart
+    AppPresenter --> BasketCounter
+
+    CartPresenter --> Cart
+    CartPresenter --> CartView
+    CartPresenter --> Modal
+    CartPresenter --> BasketCounter
+    CartPresenter --> OrderPresenter
+
+    OrderPresenter --> Order
+    OrderPresenter --> OrderView
+    OrderPresenter --> Modal
+    OrderPresenter --> ApiClient
+    OrderPresenter --> DeliveryForm
+    OrderPresenter --> ContactsForm
+    OrderPresenter --> SuccessView
