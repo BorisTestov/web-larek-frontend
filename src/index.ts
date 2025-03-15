@@ -20,10 +20,16 @@ import { AppPresenter } from './components/presenters/app-presenter';
 import { CartPresenter } from './components/presenters/cart-presenter';
 import { OrderPresenter } from './components/presenters/order-presenter';
 
+document.addEventListener('DOMContentLoaded', function() {
+	const activeModals = document.querySelectorAll('.modal_active');
+	activeModals.forEach(modal => {
+		modal.classList.remove('modal_active');
+	});
+});
+
 (async function() {
 	const api = new ApiClient(API_URL);
 
-	// Инициализируем модели
 	const appState = new AppState(api);
 	const cart = new Cart();
 	const order = new Order();
@@ -77,6 +83,10 @@ import { OrderPresenter } from './components/presenters/order-presenter';
 	);
 
 	cartPresenter.setOrderPresenter(orderPresenter);
+
+	orderPresenter.events.on('order:completed', () => {
+		cartPresenter.events.emit('order:completed', {});
+	});
 
 	try {
 		await appPresenter.init();

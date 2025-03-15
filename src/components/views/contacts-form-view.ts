@@ -1,12 +1,15 @@
 import { Component } from '../base/component';
 import { TContactsForm, IFormErrors, Events } from '../../types';
 import { ensureElement } from '../../utils/utils';
+import { EMAIL_REGEX, PHONE_REGEX } from '../../utils/constants';
 
 export class ContactsForm extends Component<HTMLFormElement> {
 	private _emailInput: HTMLInputElement;
 	private _phoneInput: HTMLInputElement;
 	private _submitButton: HTMLButtonElement;
 	private _errors: HTMLElement;
+	private _emailValid = false;
+	private _phoneValid = false;
 
 	constructor(container: HTMLFormElement) {
 		super(container);
@@ -24,19 +27,50 @@ export class ContactsForm extends Component<HTMLFormElement> {
 	render(data: TContactsForm): void {
 		if (data.email) {
 			this._emailInput.value = data.email;
+			this.handleEmailInput();
 		}
 
 		if (data.phone) {
 			this._phoneInput.value = data.phone;
+			this.handlePhoneInput();
 		}
 	}
 
 	private handleEmailInput(): void {
-		this.emit(Events.INPUT_EMAIL, { email: this._emailInput.value });
+		const email = this._emailInput.value.trim();
+		this._emailValid = EMAIL_REGEX.test(email);
+
+		if (email && !this._emailValid) {
+			this._emailInput.classList.add('invalid');
+		} else {
+			this._emailInput.classList.remove('invalid');
+		}
+
+		this.emit(Events.INPUT_EMAIL, { email });
+		this.updateButtonState();
 	}
 
 	private handlePhoneInput(): void {
-		this.emit(Events.INPUT_PHONE, { phone: this._phoneInput.value });
+		const phone = this._phoneInput.value.trim();
+		this._phoneValid = PHONE_REGEX.test(phone);
+
+		if (phone && !this._phoneValid) {
+			this._phoneInput.classList.add('invalid');
+		} else {
+			this._phoneInput.classList.remove('invalid');
+		}
+
+		this.emit(Events.INPUT_PHONE, { phone });
+		this.updateButtonState();
+	}
+
+	private updateButtonState(): void {
+		const emailFilled = this._emailInput.value.trim() !== '';
+		const phoneFilled = this._phoneInput.value.trim() !== '';
+
+		const isValid = emailFilled && phoneFilled;
+
+		this.setDisabled(this._submitButton, !isValid);
 	}
 
 	private handleSubmit(event: Event): void {
@@ -67,5 +101,8 @@ export class ContactsForm extends Component<HTMLFormElement> {
 	reset(): void {
 		this.container.reset();
 		this._errors.textContent = '';
+		this._emailValid = false;
+		this._phoneValid = false;
+		this.updateButtonState();
 	}
 }

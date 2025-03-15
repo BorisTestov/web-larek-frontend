@@ -20,6 +20,7 @@ export class SuccessView extends Component<HTMLElement> {
 	render(total: number): void {
 		this._title.textContent = 'Заказ оформлен';
 		this._description.textContent = `Списано ${total} синапсов`;
+		this.emit('order:completed', {});
 	}
 
 	private handleClick(): void {

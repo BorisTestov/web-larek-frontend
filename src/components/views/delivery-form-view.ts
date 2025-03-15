@@ -8,6 +8,8 @@ export class DeliveryForm extends Component<HTMLFormElement> {
 	private _addressInput: HTMLInputElement;
 	private _submitButton: HTMLButtonElement;
 	private _errors: HTMLElement;
+	private _paymentSelected = false;
+	private _addressFilled = false;
 
 	constructor(container: HTMLFormElement) {
 		super(container);
@@ -22,16 +24,22 @@ export class DeliveryForm extends Component<HTMLFormElement> {
 		this._cashButton.addEventListener('click', () => this.setPaymentMethod('cash'));
 		this._addressInput.addEventListener('input', this.handleAddressInput.bind(this));
 		this.container.addEventListener('submit', this.handleSubmit.bind(this));
+
+		this.checkFormValidity();
 	}
 
 	render(data: TDeliveryForm): void {
 		if (data.payment) {
 			this.setPaymentMethod(data.payment);
+			this._paymentSelected = true;
 		}
 
 		if (data.address) {
 			this._addressInput.value = data.address;
+			this._addressFilled = data.address.trim() !== '';
 		}
+
+		this.checkFormValidity();
 	}
 
 	private setPaymentMethod(method: string): void {
@@ -42,20 +50,31 @@ export class DeliveryForm extends Component<HTMLFormElement> {
 
 		if (method === 'card') {
 			this._cardButton.classList.add(activeClass);
+			this._paymentSelected = true;
 		} else if (method === 'cash') {
 			this._cashButton.classList.add(activeClass);
+			this._paymentSelected = true;
 		}
 
 		this.emit(Events.SELECT_PAYMENT, { payment: method });
+		this.checkFormValidity();
 	}
 
 	private handleAddressInput(): void {
-		this.emit(Events.INPUT_ADDRESS, { address: this._addressInput.value });
+		const addressValue = this._addressInput.value.trim();
+		this._addressFilled = addressValue !== '';
+		this.emit(Events.INPUT_ADDRESS, { address: addressValue });
+		this.checkFormValidity();
 	}
 
 	private handleSubmit(event: Event): void {
 		event.preventDefault();
 		this.emit(Events.FINISH_DELIVERY, {});
+	}
+
+	private checkFormValidity(): void {
+		const isValid = this._paymentSelected && this._addressFilled;
+		this.setDisabled(this._submitButton, !isValid);
 	}
 
 	setValid(isValid: boolean, errors: IFormErrors = {}): void {
@@ -83,5 +102,8 @@ export class DeliveryForm extends Component<HTMLFormElement> {
 		this._cardButton.classList.remove('button_alt-active');
 		this._cashButton.classList.remove('button_alt-active');
 		this._errors.textContent = '';
+		this._paymentSelected = false;
+		this._addressFilled = false;
+		this.checkFormValidity();
 	}
 }

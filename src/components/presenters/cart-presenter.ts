@@ -53,14 +53,15 @@ export class CartPresenter extends Presenter<Cart, CartView> {
 		this.events.on('order:completed', () => {
 			this.model.clear();
 			this._basketCounter.render(0);
+			this.updateView();
+
+			console.log('Заказ успешно оформлен, корзина очищена');
 		});
 	}
 
 	openCartModal(): void {
 		this.updateView();
-
 		this._modal.content = this.view.container;
-
 		this._modal.open();
 	}
 

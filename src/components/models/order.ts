@@ -1,8 +1,8 @@
 import { Model } from '../base/model';
 import { IOrder, IFormErrors, TContactsForm, TDeliveryForm, Events } from '../../types';
+import { EMAIL_REGEX, PHONE_REGEX } from '../../utils/constants';
 
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const PHONE_REGEX = /^\+?[0-9]{10,15}$/;
+
 
 export class Order extends Model<IOrder> {
 	protected _formErrors: IFormErrors = {};
@@ -53,37 +53,53 @@ export class Order extends Model<IOrder> {
 		if (!this.get('payment')) {
 			errors.payment = 'Выберите способ оплаты';
 		}
+		else {
+			errors.payment = '';
+		}
 
-		if (!this.get('address')) {
+		if (!this.get('address') || this.get('address').trim() === '') {
 			errors.address = 'Введите адрес доставки';
 		}
+		else {
+      errors.address = '';
+    }
 
 		this._formErrors = {
 			...this._formErrors,
 			...errors
 		};
 
-		// Генерируем событие с ошибками валидации
 		this.emit(Events.VALIDATE_ORDER, this._formErrors);
 
-		// Проверяем наличие ошибок
-		return Object.keys(errors).length === 0;
+		const filteredErrors = Object.entries(errors)
+      .filter(([key, value]) => value.trim()!== '')
+      .reduce((acc, [key, value]) => ({...acc, [key]: value }), {});
+
+    return Object.keys(filteredErrors).length === 0;
 	}
 
 	validateContacts(): boolean {
 		const errors: IFormErrors = {};
+		const email = this.get('email');
+		const phone = this.get('phone');
 
-		if (!this.get('email')) {
+		if (!email) {
 			errors.email = 'Введите email';
-		} else if (!EMAIL_REGEX.test(this.get('email'))) {
+		} else if (!EMAIL_REGEX.test(email)) {
 			errors.email = 'Некорректный email';
 		}
+		else {
+			errors.email = '';
+		}
 
-		if (!this.get('phone')) {
+		if (!phone) {
 			errors.phone = 'Введите телефон';
-		} else if (!PHONE_REGEX.test(this.get('phone'))) {
+		} else if (!PHONE_REGEX.test(phone)) {
 			errors.phone = 'Некорректный формат телефона';
 		}
+		else {
+      errors.phone = '';
+    }
 
 		this._formErrors = {
 			...this._formErrors,
@@ -92,7 +108,13 @@ export class Order extends Model<IOrder> {
 
 		this.emit(Events.VALIDATE_ORDER, this._formErrors);
 
-		return Object.keys(errors).length === 0;
+
+
+		const filteredErrors = Object.entries(errors)
+			.filter(([key, value]) => value.trim()!== '')
+			.reduce((acc, [key, value]) => ({...acc, [key]: value }), {});
+
+		return Object.keys(filteredErrors).length === 0;
 	}
 
 	validateOrder(): boolean {

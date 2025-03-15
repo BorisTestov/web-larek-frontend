@@ -29,30 +29,38 @@ export class AppPresenter extends Presenter<AppState, ProductListView> {
 	}
 
 	protected bindEvents(): void {
-		this.model.on(Events.LOAD_PRODUCTS, (data: { products: IProduct[] }) => {
-			this.view.render(data.products);
-		});
+		if (this.model) {
+			this.model.on(Events.LOAD_PRODUCTS, (data: { products: IProduct[] }) => {
+				this.view.render(data.products);
+			});
+		}
 
-		this.view.on(Events.OPEN_PRODUCT, (data: { product: IProduct }) => {
-			this.openProductModal(data.product);
-		});
+		if (this.view) {
+			this.view.on(Events.OPEN_PRODUCT, (data: { product: IProduct }) => {
+				this.openProductModal(data.product);
+			});
+		}
 
-		this._productView.on('product:add', (data: { id: string }) => {
-			const product = this.model.products.find(p => p.id === data.id);
-			if (product) {
-				this._cart.add(product);
-				this._productView.setButtonState(true);
+		if (this._productView) {
+			this._productView.on('product:add', (data: { id: string }) => {
+				const product = this.model.products.find(p => p.id === data.id);
+				if (product) {
+					this._cart.add(product);
+					this._productView.setButtonState(true);
+					this._basketCounter.render(this._cart.getItemsCount());
+				}
+			});
+
+			this._productView.on('product:remove', (data: { id: string }) => {
+				this._cart.remove(data.id);
+				this._productView.setButtonState(false);
 				this._basketCounter.render(this._cart.getItemsCount());
-			}
-		});
+			});
+		}
 
-		this._productView.on('product:remove', (data: { id: string }) => {
-			this._cart.remove(data.id);
-			this._productView.setButtonState(false);
-			this._basketCounter.render(this._cart.getItemsCount());
-		});
-
-		this._basketCounter.render(0);
+		if (this._basketCounter) {
+			this._basketCounter.render(0);
+		}
 	}
 
 	private openProductModal(product: IProduct): void {

@@ -54,7 +54,6 @@ export class OrderPresenter extends Presenter<Order, OrderView> {
 		});
 
 		this.events.on(Events.FINISH_CONTACTS, () => {
-			// Проверяем валидность формы контактов
 			if (this.model.validateContacts()) {
 				this.submitOrder();
 			}
@@ -82,13 +81,17 @@ export class OrderPresenter extends Presenter<Order, OrderView> {
 			this.events.emit(Events.FINISH_DELIVERY, {});
 		});
 
-		this._deliveryForm.render(this.model.getDeliveryForm());
+		const deliveryFormData = this.model.getDeliveryForm();
+		this._deliveryForm.render(deliveryFormData);
 
 		this._modal.content = this.view.container;
-
 		this._modal.open();
 
-		this.model.validateDelivery();
+		const validationResult = this.model.validateDelivery();
+
+		if (deliveryFormData.payment && deliveryFormData.address && deliveryFormData.address.trim() !== '') {
+			this._deliveryForm.setValid(true, {});
+		}
 	}
 
 	openContactsForm(): void {
@@ -104,13 +107,22 @@ export class OrderPresenter extends Presenter<Order, OrderView> {
 		});
 
 		this._contactsForm.on(Events.FINISH_CONTACTS, () => {
-			this.events.emit(Events.FINISH_CONTACTS, {});
+			const contactsData = this.model.getContactsForm();
+			const emailFilled = contactsData.email && contactsData.email.trim() !== '';
+			const phoneFilled = contactsData.phone && contactsData.phone.trim() !== '';
+
+			if (emailFilled && phoneFilled) {
+				this.events.emit(Events.FINISH_CONTACTS, {});
+			} else {
+				this._contactsForm.showErrors({
+					email: !emailFilled ? 'Введите email' : '',
+					phone: !phoneFilled ? 'Введите телефон' : ''
+				});
+			}
 		});
 
 		this._contactsForm.render(this.model.getContactsForm());
-
 		this._modal.content = this.view.container;
-
 		this._modal.open();
 
 		this.model.validateContacts();
@@ -127,10 +139,13 @@ export class OrderPresenter extends Presenter<Order, OrderView> {
 				this._modal.close();
 			});
 
+			this._successView.on('order:completed', () => {
+				this.events.emit('order:completed', {});
+			});
+
 			this._successView.render(result.total);
 
 			this._modal.content = this.view.container;
-
 			this._modal.open();
 
 			this.events.emit('order:completed', {});
@@ -142,19 +157,38 @@ export class OrderPresenter extends Presenter<Order, OrderView> {
 
 	private handleFormValidation(errors: IFormErrors): void {
 		if (this._deliveryForm) {
-			const isValid = !errors.payment && !errors.address;
-			this._deliveryForm.setValid(isValid, {
+			const isValidDelivery = !errors.payment && !errors.address;
+
+			const deliveryData = this.model.getDeliveryForm();
+			const addressFilled = deliveryData.address && deliveryData.address.trim() !== '';
+			const paymentSelected = !!deliveryData.payment;
+
+			const isFormValid = isValidDelivery && addressFilled && paymentSelected;
+
+			this._deliveryForm.setValid(isFormValid, {
 				payment: errors.payment,
 				address: errors.address
 			});
 		}
 
 		if (this._contactsForm) {
-			const isValid = !errors.email && !errors.phone;
-			this._contactsForm.setValid(isValid, {
+			const isValidContacts = !errors.email && !errors.phone;
+
+			const contactsData = this.model.getContactsForm();
+			const emailFilled = contactsData.email && contactsData.email.trim() !== '';
+			const phoneFilled = contactsData.phone && contactsData.phone.trim() !== '';
+
+			const isFormValid = isValidContacts && emailFilled && phoneFilled;
+
+			this._contactsForm.setValid(isFormValid, {
 				email: errors.email,
 				phone: errors.phone
 			});
+
+			if (emailFilled && phoneFilled) {
+				this._contactsForm.setValid(true, errors);
+			}
 		}
 	}
+
 }
