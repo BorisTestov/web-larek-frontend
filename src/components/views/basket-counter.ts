@@ -11,7 +11,7 @@ export class BasketCounter extends Component<HTMLButtonElement> {
 	}
 
 	render(count: number): void {
-		this._counter.textContent = count.toString();
+		this.setText(this._counter, count.toString());
 	}
 
 	private handleClick(): void {

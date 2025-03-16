@@ -49,10 +49,10 @@ export class DeliveryForm extends Component<HTMLFormElement> {
 		this._cashButton.classList.remove(activeClass);
 
 		if (method === 'card') {
-			this._cardButton.classList.add(activeClass);
+			this.toggleClass(this._cardButton, activeClass);
 			this._paymentSelected = true;
 		} else if (method === 'cash') {
-			this._cashButton.classList.add(activeClass);
+			this.toggleClass(this._cashButton, activeClass);
 			this._paymentSelected = true;
 		}
 
@@ -83,7 +83,7 @@ export class DeliveryForm extends Component<HTMLFormElement> {
 	}
 
 	showErrors(errors: IFormErrors): void {
-		this._errors.textContent = '';
+		this.setText(this._errors, '');
 
 		if (errors.payment) {
 			this._errors.textContent += errors.payment;
@@ -101,7 +101,7 @@ export class DeliveryForm extends Component<HTMLFormElement> {
 		this.container.reset();
 		this._cardButton.classList.remove('button_alt-active');
 		this._cashButton.classList.remove('button_alt-active');
-		this._errors.textContent = '';
+		this.setText(this._errors, '');
 		this._paymentSelected = false;
 		this._addressFilled = false;
 		this.checkFormValidity();

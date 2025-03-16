@@ -84,7 +84,7 @@ export class ContactsForm extends Component<HTMLFormElement> {
 	}
 
 	showErrors(errors: IFormErrors): void {
-		this._errors.textContent = '';
+		this.setText(this._errors, '');
 
 		if (errors.email) {
 			this._errors.textContent += errors.email;
@@ -100,7 +100,7 @@ export class ContactsForm extends Component<HTMLFormElement> {
 
 	reset(): void {
 		this.container.reset();
-		this._errors.textContent = '';
+		this.setText(this._errors, '');
 		this._emailValid = false;
 		this._phoneValid = false;
 		this.updateButtonState();

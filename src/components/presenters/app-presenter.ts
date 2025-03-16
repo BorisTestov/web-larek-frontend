@@ -2,7 +2,7 @@ import { Presenter } from '../base/presenter';
 import { AppState } from '../models/app-state';
 import { ProductListView } from '../views/product-list-view';
 import { ProductView } from '../views/product-view';
-import { Modal } from '../base/modal';
+import { Modal } from '../views/modal';
 import { BasketCounter } from '../views/basket-counter';
 import { Events, IProduct } from '../../types';
 import { Cart } from '../models/cart';

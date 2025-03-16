@@ -1,6 +1,6 @@
 import { Model } from '../base/model';
 import { IProduct, Events } from '../../types';
-import { ApiClient } from '../base/api-client';
+import { ApiClient } from '../api-client';
 
 export class AppState extends Model<{ products: IProduct[], currentProduct: IProduct | null }> {
 	private api: ApiClient;
@@ -15,8 +15,8 @@ export class AppState extends Model<{ products: IProduct[], currentProduct: IPro
 
 	async loadProducts(): Promise<void> {
 		const response = await this.api.getProducts();
-		this.set('products', response.items);
-		this.emit(Events.LOAD_PRODUCTS, { products: response.items });
+		this.set('products', response);
+		this.emit(Events.LOAD_PRODUCTS, { products: response });
 	}
 
 	setCurrentProduct(product: IProduct): void {

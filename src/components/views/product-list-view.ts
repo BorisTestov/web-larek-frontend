@@ -1,7 +1,7 @@
 import { Component } from '../base/component';
 import { IProduct, Events } from '../../types';
 import { cloneTemplate } from '../../utils/utils';
-import { CDN_URL } from '../../utils/constants';
+import { CATEGORY_MAP, CDN_URL } from '../../utils/constants';
 
 export class ProductListView extends Component<HTMLElement> {
 	private _template: HTMLTemplateElement;
@@ -28,13 +28,13 @@ export class ProductListView extends Component<HTMLElement> {
 		const category = card.querySelector('.card__category');
 		const price = card.querySelector('.card__price');
 
-		if (title) title.textContent = product.title;
-		if (image) image.src = CDN_URL + product.image;
+		if (title) this.setText(title as HTMLElement, product.title);
+		if (image) image.src = product.image;
 		if (category) {
-			category.textContent = product.category;
+			this.setText(category as HTMLElement, product.category);
 			this.setCategoryClass(category as HTMLElement, product.category);
 		}
-		if (price) price.textContent = product.price ? `${product.price} синапсов` : 'Бесценно';
+		if (price) this.setText(price as HTMLElement, product.price ? `${product.price} синапсов` : 'Бесценно');
 
 		card.addEventListener('click', () => {
 			this.emit(Events.OPEN_PRODUCT, { product });
@@ -44,15 +44,7 @@ export class ProductListView extends Component<HTMLElement> {
 	}
 
 	private setCategoryClass(element: HTMLElement, category: string): void {
-		const categoryMap: Record<string, string> = {
-			'софт-скил': 'card__category_soft',
-			'хард-скил': 'card__category_hard',
-			'другое': 'card__category_other',
-			'дополнительное': 'card__category_additional',
-			'кнопка': 'card__category_button'
-		};
-
-		const categoryClass = categoryMap[category.toLowerCase()] || 'card__category_other';
+		const categoryClass = CATEGORY_MAP[category.toLowerCase()] || 'card__category_other';
 		element.classList.add(categoryClass);
 	}
 }

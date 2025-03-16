@@ -1,7 +1,7 @@
 import { Presenter } from '../base/presenter';
 import { Cart } from '../models/cart';
 import { CartView } from '../views/cart-view';
-import { Modal } from '../base/modal';
+import { Modal } from '../views/modal';
 import { BasketCounter } from '../views/basket-counter';
 import { Events } from '../../types';
 import { OrderPresenter } from './order-presenter';
@@ -54,8 +54,6 @@ export class CartPresenter extends Presenter<Cart, CartView> {
 			this.model.clear();
 			this._basketCounter.render(0);
 			this.updateView();
-
-			console.log('Заказ успешно оформлен, корзина очищена');
 		});
 	}
 

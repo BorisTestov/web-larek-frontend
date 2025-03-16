@@ -1,4 +1,4 @@
-import { Component } from './component';
+import { Component } from '../base/component';
 import { IModal, Events } from '../../types';
 import { ensureElement } from '../../utils/utils';
 

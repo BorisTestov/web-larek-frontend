@@ -26,7 +26,7 @@ export class CartView extends Component<HTMLElement> implements ICartView {
 
 		if (itemsArray.length === 0) {
 			const emptyMessage = document.createElement('p');
-			emptyMessage.textContent = this._emptyText;
+			this.setText(emptyMessage, this._emptyText);
 			this._list.append(emptyMessage);
 			this.setDisabled(this._button, true);
 		} else {
@@ -41,7 +41,7 @@ export class CartView extends Component<HTMLElement> implements ICartView {
 	}
 
 	updateTotal(total: number): void {
-		this._total.textContent = `${total} синапсов`;
+		this.setText(this._total, `${total} синапсов`);
 	}
 
 	private calculateTotal(items: IProduct[]): number {
@@ -56,9 +56,9 @@ export class CartView extends Component<HTMLElement> implements ICartView {
 		const price = cartItem.querySelector('.card__price');
 		const deleteButton = cartItem.querySelector('.basket__item-delete');
 
-		if (indexElement) indexElement.textContent = String(index);
-		if (title) title.textContent = item.title;
-		if (price) price.textContent = item.price ? `${item.price} синапсов` : 'Бесценно';
+		if (indexElement) this.setText(indexElement as HTMLElement, String(index));
+		if (title) this.setText(title as HTMLElement, item.title);
+		if (price) this.setText(price as HTMLElement, item.price? `${item.price} синапсов` : 'Бесценно');
 
 		if (deleteButton) {
 			deleteButton.addEventListener('click', (e) => {

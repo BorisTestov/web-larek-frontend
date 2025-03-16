@@ -1,12 +1,12 @@
 import { Presenter } from '../base/presenter';
 import { Order } from '../models/order';
 import { OrderView } from '../views/order-view';
-import { Modal } from '../base/modal';
+import { Modal } from '../views/modal';
 import { Events, IFormErrors, TDeliveryForm, TContactsForm } from '../../types';
 import { DeliveryForm } from '../views/delivery-form-view';
 import { ContactsForm } from '../views/contacts-form-view';
 import { SuccessView } from '../views/success-view';
-import { ApiClient } from '../base/api-client';
+import { ApiClient } from '../api-client';
 
 export class OrderPresenter extends Presenter<Order, OrderView> {
 	private _modal: Modal;
@@ -27,6 +27,10 @@ export class OrderPresenter extends Presenter<Order, OrderView> {
 	}
 
 	protected bindEvents(): void {
+		this._modal.on(Events.CLOSE_MODAL, () => {
+			this.model.reset();
+		});
+
 		this.model.on(Events.VALIDATE_ORDER, (errors: IFormErrors) => {
 			this.handleFormValidation(errors);
 		});

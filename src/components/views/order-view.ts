@@ -38,7 +38,7 @@ export class OrderView extends Component<HTMLElement> implements IOrderView {
 				paymentButtons.forEach(button => {
 					const buttonElement = button as HTMLButtonElement;
 					if (buttonElement.name === order.payment) {
-						buttonElement.classList.add('button_alt-active');
+						this.toggleClass(buttonElement, 'button_alt-active');
 					}
 				});
 			}
@@ -60,7 +60,7 @@ export class OrderView extends Component<HTMLElement> implements IOrderView {
 
 			const description = successView.querySelector('.order-success__description');
 			if (description) {
-				description.textContent = `Списано ${order.total} синапсов`;
+				this.setText(description as HTMLElement, `Списано ${order.total} синапсов`);
 			}
 		}
 	}
@@ -88,8 +88,8 @@ export class OrderView extends Component<HTMLElement> implements IOrderView {
 
 	showError(message: string): void {
 		const errorElement = document.createElement('div');
-		errorElement.classList.add('order__error');
-		errorElement.textContent = message;
+		this.toggleClass(errorElement, 'order__error');
+		this.setText(errorElement as HTMLElement, message);
 
 		this.clear();
 		this.container.append(errorElement);

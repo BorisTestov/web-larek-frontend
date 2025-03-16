@@ -7,14 +7,14 @@ import { AppState } from './components/models/app-state';
 import { Cart } from './components/models/cart';
 import { Order } from './components/models/order';
 
-import { ApiClient } from './components/base/api-client';
+import { ApiClient } from './components/api-client';
 
 import { ProductListView } from './components/views/product-list-view';
 import { ProductView } from './components/views/product-view';
 import { CartView } from './components/views/cart-view';
 import { OrderView } from './components/views/order-view';
 import { BasketCounter } from './components/views/basket-counter';
-import { Modal } from './components/base/modal';
+import { Modal } from './components/views/modal';
 
 import { AppPresenter } from './components/presenters/app-presenter';
 import { CartPresenter } from './components/presenters/cart-presenter';
@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	try {
 		await appPresenter.init();
-		console.log('Приложение инициализировано');
 	} catch (error) {
 		console.error('Ошибка инициализации приложения:', error);
 	}

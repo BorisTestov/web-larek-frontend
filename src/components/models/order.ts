@@ -19,6 +19,15 @@ export class Order extends Model<IOrder> {
 		});
 	}
 
+	reset(): void {
+		this.set('payment', '');
+		this.set('email', '');
+		this.set('phone', '');
+		this.set('address', '');
+    this._formErrors = {};
+    this.trigger(Events.VALIDATE_ORDER, this._formErrors);
+	}
+
 	setPayment(value: string): void {
 		this.set('payment', value);
 		this.validateDelivery();

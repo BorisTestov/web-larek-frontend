@@ -60,7 +60,7 @@ export interface IOrderResult {
 }
 
 export interface IAPIClient {
-	getProducts(): Promise<IProductsResponse>;
+	getProducts(): Promise<IProduct[]>;
 	getProduct(id: string): Promise<IProduct>;
 	createOrder(order: IOrder): Promise<IOrderResult>;
 }

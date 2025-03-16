@@ -1,7 +1,7 @@
 import { Component } from '../base/component';
 import { IProduct, Events } from '../../types';
 import { ensureElement } from '../../utils/utils';
-import { CDN_URL } from '../../utils/constants';
+import { CATEGORY_MAP, CDN_URL } from '../../utils/constants';
 
 export class ProductView extends Component<HTMLElement> {
 	private _title: HTMLElement;
@@ -27,13 +27,20 @@ export class ProductView extends Component<HTMLElement> {
 	}
 
 	render(product: IProduct, inCart = false): void {
-		this._title.textContent = product.title;
-		this._image.src = CDN_URL + product.image;
-		this._text.textContent = product.description;
-		this._category.textContent = product.category;
-		this._price.textContent = product.price ? `${product.price} синапсов` : 'Бесценно';
+		this.setText(this._title, product.title);
+		this._image.src = product.image;
+		this.setText(this._text, product.description);
+		this.setText(this._category, product.category);
+		this.setText(this._price, product.price ? `${product.price} синапсов` : 'Бесценно');
 
 		this.setCategoryClass(product.category);
+
+		if (product.price <= 0 || product.price === null) {
+			this.setDisabled(this._button, true);
+		}
+		else {
+			this.setDisabled(this._button, false);
+		}
 
 		this.setButtonState(inCart);
 
@@ -41,24 +48,16 @@ export class ProductView extends Component<HTMLElement> {
 	}
 
 	private setCategoryClass(category: string): void {
-		const categoryMap: Record<string, string> = {
-			'софт-скил': 'card__category_soft',
-			'хард-скил': 'card__category_hard',
-			'другое': 'card__category_other',
-			'дополнительное': 'card__category_additional',
-			'кнопка': 'card__category_button'
-		};
-
-		Object.values(categoryMap).forEach(cls => {
-			this._category.classList.remove(cls);
+		Object.values(CATEGORY_MAP).forEach(cls => {
+			this.toggleClass(this._category, cls);
 		});
 
-		const categoryClass = categoryMap[category.toLowerCase()] || 'card__category_other';
-		this._category.classList.add(categoryClass);
+		const categoryClass = CATEGORY_MAP[category.toLowerCase()] || 'card__category_other';
+		this.toggleClass(this._category, categoryClass);
 	}
 
 	setButtonState(inCart: boolean): void {
-		this._button.textContent = inCart ? this._buttonRemoveText : this._buttonText;
+		this.setText(this._button, inCart ? this._buttonRemoveText : this._buttonText);
 		this.container.dataset.inCart = inCart ? 'true' : 'false';
 	}
 
