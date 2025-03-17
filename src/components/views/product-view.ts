@@ -49,7 +49,7 @@ export class ProductView extends Component<HTMLElement> {
 
 	private setCategoryClass(category: string): void {
 		Object.values(CATEGORY_MAP).forEach(cls => {
-			this.toggleClass(this._category, cls);
+			this._category.classList.remove(cls);
 		});
 
 		const categoryClass = CATEGORY_MAP[category.toLowerCase()] || 'card__category_other';
